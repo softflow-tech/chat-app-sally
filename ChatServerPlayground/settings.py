@@ -52,6 +52,10 @@ INSTALLED_APPS = [
     'personal',
     'account',
     'friend',
+    'public_chat',
+
+    # tools
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +87,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ChatServerPlayground.wsgi.application'
+
+ASGI_APPLICATION = 'ChatServerPlayground.routing.application'
 
 CHANNEL_LAYERS = {
     'default': {
