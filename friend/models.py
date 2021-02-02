@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+# from chat.utils import find_or_create_private_chat
 # from notification.models import Notification
 
 
@@ -21,7 +22,9 @@ class FriendList(models.Model):
 		return self.user.username
 
 	def add_friend(self, account):
-
+		"""
+		Add a new friend.
+		"""
 		if not account in self.friends.all():
 			self.friends.add(account)
 			self.save()
@@ -44,7 +47,9 @@ class FriendList(models.Model):
 			# 	chat.save()
 
 	def remove_friend(self, account):
-
+		"""
+		Remove a friend.
+		"""
 		if account in self.friends.all():
 			self.friends.remove(account)
 
@@ -55,15 +60,21 @@ class FriendList(models.Model):
 			# 	chat.save()
 
 	def unfriend(self, removee):
+		"""
+		Initiate the action of unfriending someone.
+		"""
 		remover_friends_list = self # person terminating the friendship
 
+		# Remove friend from remover friend list
 		remover_friends_list.remove_friend(removee)
 
+		# Remove friend from removee friend list
 		friends_list = FriendList.objects.get(user=removee)
 		friends_list.remove_friend(remover_friends_list.user)
 
-		content_type = ContentType.objects.get_for_model(self)
+		# content_type = ContentType.objects.get_for_model(self)
 
+		# # Create notification for removee
 		# friends_list.notifications.create(
 		# 	target=removee,
 		# 	from_user=self.user,
@@ -72,6 +83,7 @@ class FriendList(models.Model):
 		# 	content_type=content_type,
 		# )
 
+		# # Create notification for remover
 		# self.notifications.create(
 		# 	target=self.user,
 		# 	from_user=removee,
@@ -125,15 +137,15 @@ class FriendRequest(models.Model):
 		"""
 		receiver_friend_list = FriendList.objects.get(user=self.receiver)
 		if receiver_friend_list:
-			content_type = ContentType.objects.get_for_model(self)
+		# 	content_type = ContentType.objects.get_for_model(self)
 
-			# # Update notification for RECEIVER
-			receiver_notification = Notification.objects.get(target=self.receiver, content_type=content_type, object_id=self.id)
-			receiver_notification.is_active = False
-			receiver_notification.redirect_url = f"{settings.BASE_URL}/account/{self.sender.pk}/"
-			receiver_notification.verb = f"You accepted {self.sender.username}'s friend request."
-			receiver_notification.timestamp = timezone.now()
-			receiver_notification.save()
+		# 	# Update notification for RECEIVER
+		# 	receiver_notification = Notification.objects.get(target=self.receiver, content_type=content_type, object_id=self.id)
+		# 	receiver_notification.is_active = False
+		# 	receiver_notification.redirect_url = f"{settings.BASE_URL}/account/{self.sender.pk}/"
+		# 	receiver_notification.verb = f"You accepted {self.sender.username}'s friend request."
+		# 	receiver_notification.timestamp = timezone.now()
+		# 	receiver_notification.save()
 
 			receiver_friend_list.add_friend(self.sender)
 
@@ -150,10 +162,10 @@ class FriendRequest(models.Model):
 				# )
 
 				sender_friend_list.add_friend(self.receiver)
-				sender_friend_list.save()
+				# sender_friend_list.save()
 				self.is_active = False
 				self.save()
-			return receiver_notification # we will need this later to update the realtime notifications
+			# return receiver_notification # we will need this later to update the realtime notifications
 
 
 	def decline(self):
@@ -166,7 +178,7 @@ class FriendRequest(models.Model):
 
 		content_type = ContentType.objects.get_for_model(self)
 
-		# Update notification for RECEIVER
+		# # Update notification for RECEIVER
 		# notification = Notification.objects.get(target=self.receiver, content_type=content_type, object_id=self.id)
 		# notification.is_active = False
 		# notification.redirect_url = f"{settings.BASE_URL}/account/{self.sender.pk}/"
@@ -175,7 +187,7 @@ class FriendRequest(models.Model):
 		# notification.timestamp = timezone.now()
 		# notification.save()
 
-		# Create notification for SENDER
+		# # Create notification for SENDER
 		# self.notifications.create(
 		# 	target=self.sender,
 		# 	verb=f"{self.receiver.username} declined your friend request.",
