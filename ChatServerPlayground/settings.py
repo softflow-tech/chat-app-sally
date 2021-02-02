@@ -49,10 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Custom Apps
-    'personal',
     'account',
+    'chat',
     'friend',
+    'personal',
     'public_chat',
+    'notification',
 
     # tools
     'channels',
